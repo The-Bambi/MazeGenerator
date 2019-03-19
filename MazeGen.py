@@ -1,3 +1,10 @@
+import random
+import PIL
+from Stack import *
+from PIL import Image
+from PIL import ImageDraw
+
+
 class cell:
     
     def __init__(self,coords):
@@ -17,9 +24,9 @@ class cell:
 
 class maze:
     
-    def __init__(self,size):
-        self.width = size[0]
-        self.height = size[1]
+    def __init__(self):
+        self.width = 0
+        self.height = 0
         self.cells = []
         self.not_visited = -1
         
@@ -52,7 +59,6 @@ class maze:
         self.not_visited = self.width*self.height
     
     def make_paths(self):
-        import random
         path = Stack()
         current = self.cells[0][0]
         self.visit(0,0)
@@ -72,21 +78,11 @@ class maze:
                         else:
                             other_index = index+2
                         
-                        #if index == 0:
-                        #    other_index = 2
-                        #if index == 1:
-                        #    other_index = 3
-                        #if index == 2:
-                        #    other_index = 0
-                        #if index == 3:
-                        #    other_index = 1
-                        
                         current.walls[index] = 0
                         sequent.walls[other_index] = 0
                         self.visit(x,y)
                         path.push(current)
                         current = sequent
-                        #print(coords,current.walls,current.not_visited_neighbours)
                     else:
                         continue
                 else:
@@ -105,10 +101,6 @@ class maze:
                 neighbour.not_visited_neighbours -= 1
                 
     def draw(self,name='new'):
-        import PIL
-        from PIL import Image
-        from PIL import ImageDraw
-        
         unit = 10
         img = Image.new('1',(self.width*unit+2,self.height*unit+2),color='white')
         for a in self.cells:
@@ -127,7 +119,20 @@ class maze:
                             draw.line((newx+unit,newy+1,newx+unit,newy+unit-1), fill = 'white')
                         if index == 3:
                             draw.line((newx+1,newy+unit+1,newx+unit-1,newy+unit), fill = 'white')
-                #print(b.x, b.y, b.walls)
         draw.line((1,0,unit-1,0),fill='white')
         draw.line((self.width*unit-9,self.height*unit,self.width*unit,self.height*unit),fill='white')
         img.save('{}.png'.format(name),'png')
+
+    def generate(self, name = 'new', width = 0, height = 0):
+        self.width = width
+        self.height = height
+        self.cells = []
+        self.not_visited = -1
+        print("Generating grid...")
+        self.make_grid()
+        print("Making paths...")
+        self.make_paths()
+        print("Drawing...")
+        self.draw(name)
+        print("Done! File \"{}.png\" is ready!".format(name))
+
